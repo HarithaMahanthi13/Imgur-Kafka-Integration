@@ -1,6 +1,9 @@
 name: Deploy UserImage Management App
 
 on:
+  workflow_dispatch: 
+    branches: master
+  
   push:
     branches:
       - master  # Trigger the workflow on push to the main branch
