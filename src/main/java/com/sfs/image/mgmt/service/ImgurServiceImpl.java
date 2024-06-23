@@ -33,12 +33,17 @@ public class ImgurServiceImpl implements IImgurService {
 
     @Autowired
     private RestTemplate restTemplate;
+    
+     
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ImageRepository imageRepository;
+    
+    @Autowired
+    private ImgurAuthService authService;
 
     public Image uploadImage(MultipartFile file, String username, String password) throws IOException {
         User user = authenticateUser(username, password);
@@ -69,19 +74,29 @@ public class ImgurServiceImpl implements IImgurService {
 
     public void deleteImage(Long id, String username, String password) {
         User user = authenticateUser(username, password);
+        
         Image image = imageRepository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
         
         if (!image.getUser().equals(user)) {System.out.println("in not valid user");
         	
             throw new RuntimeException("You are not authorized to delete this image");
         }
-
+        final StringBuilder accessToken = new StringBuilder();
+        String accessToken1 = authService.refreshAccessToken();
+        accessToken.append("Bearer ").append(accessToken1);
+        System.out.println("Image ID ++++++++++++++++++++"+accessToken);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Client-ID " + clientId);
+        headers.set("Authorization",accessToken.toString() );
+        headers.set(username, password);
         System.out.println("in  valid user");
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
+        System.out.println("Image ID ++++++++++++++++++++"+image.getImgurId());
+        
+        
+        
         restTemplate.exchange("https://api.imgur.com/3/image/" + image.getImgurId(), HttpMethod.DELETE, requestEntity, Void.class);
+        
+        
 
         imageRepository.delete(image);
     }

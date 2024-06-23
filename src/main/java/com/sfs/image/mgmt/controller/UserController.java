@@ -46,7 +46,11 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.authenticateUser(user.getSfsUser(), user.getSfsUserpassword()));
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("login failure");
+        }
+        catch (RuntimeException e) {
+            // Catching RuntimeException to handle unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error: " + e.getMessage());
         }
     }
 
@@ -69,6 +73,7 @@ public class UserController {
             userProfileDto.setImages(user.getImage());
             return ResponseEntity.ok(userProfileDto);
         } catch (UserNotFoundException e) {
+        	System.out.println("incatch block");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }

@@ -38,32 +38,25 @@ public class UserServiceImpl implements IUserService {
      * @return The authenticated user if credentials are valid.
      * @throws RuntimeException if no matching user is found or if the password does not match.
      */
-	public String authenticateUser(String username,String password) {
-		try {
-		 Optional<User> optionalUser = userRepository.findBySfsUser(username);
-	        User user = optionalUser.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-	        if (user.getSfsUserpassword().equals(password)) {
-	            return "login success";
-	        }
-	        else{
-	        	 throw new AuthenticationException("Invalid username or password");}
-	        }
-		catch(AuthenticationException e) {
-	            throw new AuthenticationException("Invalid username or password");
-	        }
+		public String authenticateUser(String username,String password) {
+			
+			 Optional<User> optionalUser = userRepository.findBySfsUser(username);
+		        User user = optionalUser.orElseThrow(() -> new UserNotFoundException("User not found"));
+	
+		        if (user.getSfsUserpassword().equals(password)) {
+		            return "login success";
+		        }
+		        else{
+		        	 throw new AuthenticationException("Invalid username or password");}
+		        }
 	
 		
-	  
-	}
+		 public Optional<User> getUser(String username) {
+			 Optional<User> optionalUser = userRepository.findBySfsUser(username);
+		        User user = optionalUser.orElseThrow(() -> new UserNotFoundException("User not found"));
 	
-	
-	 public Optional<User> getUser(String username) {
-		 Optional<User> optionalUser = userRepository.findBySfsUser(username);
-	        User user = optionalUser.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-	        return userRepository.findBySfsUser(username);
-	    }
+		        return userRepository.findBySfsUser(username);
+		    }
 
 
 }
