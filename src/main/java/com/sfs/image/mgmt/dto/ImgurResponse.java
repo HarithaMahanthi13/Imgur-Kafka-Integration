@@ -7,10 +7,7 @@ import lombok.Data;
 @Data
 public class ImgurResponse {
     private ImgurData data;
-
-	
-
-  
+ 
 }
 
 

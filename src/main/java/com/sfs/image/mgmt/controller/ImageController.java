@@ -15,8 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sfs.image.mgmt.entity.Image;
+import com.sfs.image.mgmt.entity.ProducerMessage;
+import com.sfs.image.mgmt.entity.ResponseMessage;
+import com.sfs.image.mgmt.kakfaProducer.KafkaProducer;
 import com.sfs.image.mgmt.service.IImgurService;
+import com.sfs.image.mgmt.service.KafkaImageUploadService;
 
 @RestController
 @RequestMapping("/sfs/images")
@@ -25,10 +31,25 @@ public class ImageController {
 
     @Autowired
     private IImgurService imgurService;
+    
+  
+    private final KafkaImageUploadService kafkaImageUploadService;
+    
+    private final KafkaProducer kafkaProducer;
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    public ImageController(KafkaImageUploadService imageUploadService,KafkaProducer kafkaProducer,ObjectMapper objectMapper) {
+        this.kafkaImageUploadService = imageUploadService;
+        this.kafkaProducer = kafkaProducer;
+        this.objectMapper = objectMapper;
+    }
+    
+   
 
     /**
      * Uploads an image to Imgur and associates it with the user.
-     *
+     * Post image and image data  to Kafka
      * @param file the image file to upload
      * @param username the username for authentication
      * @param password the password for authentication
@@ -36,12 +57,33 @@ public class ImageController {
      * @throws IOException if an error occurs during file upload
      */
     @PostMapping("/upload")
-    public ResponseEntity<Image> uploadImage(
+    public ResponseEntity<ResponseMessage> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("username") String username,
             @RequestParam("password") String password) throws IOException {
+    	ResponseMessage responseMessage=new ResponseMessage();
         Image image = imgurService.uploadImage(file, username, password);
-        return ResponseEntity.ok(image);
+        responseMessage.setId(image.getId());
+        responseMessage.setImgurId( image.getImgurId());
+        responseMessage.setMessage("Uploaded Success");
+        responseMessage.setUser(username);
+        responseMessage.setImageLink(image.getLink());
+ 
+        
+        ProducerMessage producerMessage=new ProducerMessage();
+    	producerMessage.setUsername(username);
+    	producerMessage.setImageName(username+"Image");
+    	producerMessage.setImageBytes(file.getBytes());
+    	
+      
+    	 try {
+             String jsonMessage = objectMapper.writeValueAsString(producerMessage);
+              kafkaProducer.sendMessage(jsonMessage);
+         } catch (JsonProcessingException e) {
+             e.printStackTrace();
+           
+         }
+        return ResponseEntity.ok(responseMessage);
     }
 
     /**
@@ -56,7 +98,6 @@ public class ImageController {
             @RequestParam("username") String username,
             @RequestParam("password") String password) {
         List<Image> images = imgurService.getUserImages(username, password);
-        System.out.println("count of images: " + images.size());
         return ResponseEntity.ok(images);
     }
 
@@ -69,7 +110,7 @@ public class ImageController {
      * @return a ResponseEntity indicating the result of the delete operation
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteImage(
+    public ResponseEntity<ResponseMessage> deleteImage(
             @PathVariable Long id,
             @RequestParam("username") String username,
             @RequestParam("password") String password) {
