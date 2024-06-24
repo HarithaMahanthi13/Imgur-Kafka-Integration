@@ -94,7 +94,7 @@ public class ImgurServiceImpl implements IImgurService {
             log.error("Error occurred: " + e.getMessage());
         } finally {
             stopWatch.stop();
-            log.info("Time taken to upload image: " + stopWatch.getTotalTimeMillis() + " ms");
+            log.info("Time taken to upload image to api: " + stopWatch.getTotalTimeMillis() + " ms");
         }
         return image;
     }

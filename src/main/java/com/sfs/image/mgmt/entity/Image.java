@@ -8,19 +8,34 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
+/**
+ * Entity class representing an image uploaded by a user.
+ */
 @Entity
 @Data
 public class Image {
- 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String imgurId;
-	private String link;
-	
-	@ManyToOne
-	@JoinColumn(name="user_id")
-	private User user;
-	
-	
+
+    /**
+     * The unique identifier for the image.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * The unique identifier for the image on Imgur.
+     */
+    private String imgurId;
+
+    /**
+     * The URL link to access the image on Imgur.
+     */
+    private String link;
+
+    /**
+     * The user who uploaded the image.
+     */
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

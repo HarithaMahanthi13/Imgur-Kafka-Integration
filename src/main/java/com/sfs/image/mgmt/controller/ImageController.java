@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sfs.image.mgmt.entity.Image;
 import com.sfs.image.mgmt.entity.ProducerMessage;
 import com.sfs.image.mgmt.entity.ResponseMessage;
-import com.sfs.image.mgmt.kakfaProducer.KafkaProducer;
+import com.sfs.image.mgmt.kakfa.KafkaProducer;
 import com.sfs.image.mgmt.service.IImgurService;
 import com.sfs.image.mgmt.service.KafkaImageUploadService;
 
@@ -62,6 +63,8 @@ public class ImageController {
             @RequestParam("username") String username,
             @RequestParam("password") String password) throws IOException {
     	ResponseMessage responseMessage=new ResponseMessage();
+    	StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         Image image = imgurService.uploadImage(file, username, password);
         responseMessage.setId(image.getId());
         responseMessage.setImgurId( image.getImgurId());
@@ -83,6 +86,8 @@ public class ImageController {
              e.printStackTrace();
            
          }
+    	 stopWatch.stop();
+         log.info("Time taken to upload image: " + stopWatch.getTotalTimeMillis() + " ms");
         return ResponseEntity.ok(responseMessage);
     }
 

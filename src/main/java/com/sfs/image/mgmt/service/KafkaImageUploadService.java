@@ -3,9 +3,10 @@ package com.sfs.image.mgmt.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sfs.image.mgmt.entity.ProducerMessage;
-import com.sfs.image.mgmt.kakfaProducer.KafkaProducer;
+import com.sfs.image.mgmt.kakfa.KafkaProducer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ public class KafkaImageUploadService {
      * @return a status message indicating the result of the Kafka message send operation
      * @throws IOException if an I/O error occurs while reading the image bytes
      */
+    @Async("taskExecutor")
     public String uploadImage(String username, String imageName, MultipartFile file) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
