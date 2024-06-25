@@ -35,7 +35,6 @@ public class ImageController {
     
   
     private final KafkaImageUploadService kafkaImageUploadService;
-    
     private final KafkaProducer kafkaProducer;
     private final ObjectMapper objectMapper;
 

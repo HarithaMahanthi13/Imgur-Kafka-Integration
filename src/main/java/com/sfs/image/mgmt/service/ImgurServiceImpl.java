@@ -33,6 +33,12 @@ public class ImgurServiceImpl implements IImgurService {
 
     @Value("${imgur.client-id}")
     private String clientId;
+    
+    @Value("${imgur.image.upload.url}")
+    private String imgurUploadURL;
+    
+    @Value("${imgur.image.delete.url}")
+    private String imgurDeleteURL;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -73,7 +79,7 @@ public class ImgurServiceImpl implements IImgurService {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         Image image = new Image();
         try {
-            ResponseEntity<ImgurResponse> response = restTemplate.postForEntity("https://api.imgur.com/3/upload", requestEntity, ImgurResponse.class);
+            ResponseEntity<ImgurResponse> response = restTemplate.postForEntity(imgurUploadURL, requestEntity, ImgurResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 ImgurResponse responseBody = response.getBody();
@@ -159,7 +165,7 @@ public class ImgurServiceImpl implements IImgurService {
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
             try {
-                restTemplate.exchange("https://api.imgur.com/3/image/" + image.getImgurId(), HttpMethod.DELETE, requestEntity, Void.class);
+                restTemplate.exchange(imgurDeleteURL + image.getImgurId(), HttpMethod.DELETE, requestEntity, Void.class);
                 imageRepository.delete(image);
                 log.info("Image deleted successfully.");
             } catch (HttpClientErrorException e) {

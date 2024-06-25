@@ -11,19 +11,33 @@ import org.springframework.util.StopWatch;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * KafkaProducer is a service class responsible for sending messages to a Kafka topic.
+ */
 @Service
 @Slf4j
 public class KafkaProducer {
 
     private final String topic;
-
     private final KafkaTemplate<String, String> kafkaTemplate;
 
+    /**
+     * Constructor for KafkaProducer.
+     * 
+     * @param kafkaTemplate KafkaTemplate used for sending messages.
+     * @param topic The topic to which messages will be sent.
+     */
     public KafkaProducer(KafkaTemplate<String, String> kafkaTemplate, @Value("${kafka.topic.user-image}") String topic) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
     }
 
+    /**
+     * Sends a message to the specified Kafka topic and logs the result.
+     * 
+     * @param message The message to send.
+     * @return A status message indicating the result of the send operation.
+     */
     public String sendMessage(String message) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

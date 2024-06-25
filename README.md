@@ -2,7 +2,7 @@
 
 ## Description
 
-SFS Image Management is a web application for managing image uploads and retrieval using the Imgur API. It provides functionalities for user registration, authentication, and image management.It hasposted image upload data to kafka. For Consumer demoKafkaConsumer also implemented it is consuming the same data what kafkaproducer posted. Usually we can consume data from other topics based on requirement. 
+SFS Image Management is a web application for managing image uploads and retrieval using the Imgur API. It provides functionalities for user registration, authentication, and image management.It hasposted image upload data to kafka. For Consumer demo KafkaConsumer also implemented it is consuming the same data what kafkaproducer posted. Usually we can consume data from other topics based on requirement. 
 
 ## Table of Contents
 
@@ -150,6 +150,13 @@ This project uses JUnit 5 for unit testing. Below are some of the test cases imp
 4. **testLoginUser_Failure**: Verifies that login fails with incorrect credentials.
 5. **testGetUserProfile_Success**: Verifies that a user profile can be retrieved successfully.
 6. **testGetUserProfile_Failure**: Verifies that retrieving a non-existent user profile returns a 404 status.
+
+## Contact
+For any queries regarding the project, please contact:
+
+Name: Haritha Mahanthi
+Email: haritha.goodvibes4u@gmail.com
+GitHub: [link] https://github.com/HarithaMahanthi/sfs-image-management.git
 
 
 

@@ -53,8 +53,6 @@ public class ImgurAuthService {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        String url = "https://api.imgur.com/oauth2/token";
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.MULTIPART_FORM_DATA);
 
