@@ -51,6 +51,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-client</artifactId>
+    <version>3.2.2</version>
+    <exclusions>
+        <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
         <!-- Lombok for reducing boilerplate code -->
         <dependency>
             <groupId>org.projectlombok</groupId>

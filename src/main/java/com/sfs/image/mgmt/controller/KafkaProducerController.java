@@ -35,7 +35,7 @@ public class KafkaProducerController {
                               @RequestParam("imageName") String imageName,
                               @RequestParam("file") MultipartFile file) {
         try {
-            imageUploadService.uploadImage(username, imageName, file);
+            imageUploadService.sendFileToKafka(username, imageName, file);
             return "Image uploaded and event published";
         } catch (IOException e) {
             e.printStackTrace();

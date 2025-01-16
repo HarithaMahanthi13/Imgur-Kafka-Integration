@@ -2,6 +2,8 @@ package com.sfs.image.mgmt.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,6 +44,7 @@ public class User {
     /**
      * The list of images associated with the user.
      */
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @OneToMany(mappedBy = "tooluser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Image> image;
 }

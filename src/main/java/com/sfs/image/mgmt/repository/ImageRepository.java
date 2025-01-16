@@ -18,5 +18,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
      * @param user the user whose images are to be found
      * @return a list of images associated with the user
      */
-    List<Image> findByUser(User user);
+    List<Image> findByTooluser(User user);
 }

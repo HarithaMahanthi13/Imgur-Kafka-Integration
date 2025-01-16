@@ -22,4 +22,6 @@ public class ProducerMessage {
      * The byte array representing the image data.
      */
     private byte[] imageBytes;
+    
+    private String imageBytesString;
 }

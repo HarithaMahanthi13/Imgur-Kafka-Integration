@@ -1,5 +1,7 @@
 package com.sfs.image.mgmt.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,7 +37,8 @@ public class Image {
     /**
      * The user who uploaded the image.
      */
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User tooluser;
 }

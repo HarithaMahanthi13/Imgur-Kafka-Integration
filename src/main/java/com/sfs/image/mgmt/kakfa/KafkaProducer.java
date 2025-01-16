@@ -1,5 +1,6 @@
 package com.sfs.image.mgmt.kakfa;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -8,6 +9,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sfs.image.mgmt.entity.ProducerMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,4 +62,5 @@ public class KafkaProducer {
             return kafkaStatus;
         }
     }
+
 }

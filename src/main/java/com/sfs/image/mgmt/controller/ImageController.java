@@ -72,19 +72,19 @@ public class ImageController {
         responseMessage.setImageLink(image.getLink());
  
         
-        ProducerMessage producerMessage=new ProducerMessage();
-    	producerMessage.setUsername(username);
-    	producerMessage.setImageName(username+"Image");
-    	producerMessage.setImageBytes(file.getBytes());
-    	
-      
-    	 try {
-             String jsonMessage = objectMapper.writeValueAsString(producerMessage);
-              kafkaProducer.sendMessage(jsonMessage);
-         } catch (JsonProcessingException e) {
-             e.printStackTrace();
-           
-         }
+		/*
+		 * ProducerMessage producerMessage=new ProducerMessage();
+		 * producerMessage.setUsername(username);
+		 * producerMessage.setImageName(username+"Image");
+		 * producerMessage.setImageBytes(file.getBytes());
+		 * 
+		 * 
+		 * try { String jsonMessage = objectMapper.writeValueAsString(producerMessage);
+		 * kafkaProducer.sendMessage(jsonMessage); } catch (JsonProcessingException e) {
+		 * e.printStackTrace();
+		 * 
+		 * }
+		 */
     	 stopWatch.stop();
          log.info("Time taken to upload image: " + stopWatch.getTotalTimeMillis() + " ms");
         return ResponseEntity.ok(responseMessage);

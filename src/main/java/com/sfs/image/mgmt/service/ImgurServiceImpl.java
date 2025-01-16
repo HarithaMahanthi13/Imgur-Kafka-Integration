@@ -85,7 +85,7 @@ public class ImgurServiceImpl implements IImgurService {
                 ImgurResponse responseBody = response.getBody();
                 image.setImgurId(responseBody.getData().getId());
                 image.setLink(responseBody.getData().getLink());
-                image.setUser(user);
+                image.setTooluser(user);
                 imageRepository.save(image);
             } else {
                 log.error("Failed to upload image. Status code: " + response.getStatusCode());
@@ -121,7 +121,7 @@ public class ImgurServiceImpl implements IImgurService {
         List<Image> images = null;
         try {
             User user = authenticateUser(username, password);
-            images = imageRepository.findByUser(user);
+            images = imageRepository.findByTooluser(user);
         } catch (RuntimeException e) {
             log.error("Exception occurred while fetching user images: " + e.getMessage(), e);
             throw e; // Re-throw the exception if you want it to propagate further
@@ -150,7 +150,7 @@ public class ImgurServiceImpl implements IImgurService {
             User user = authenticateUser(username, password);
             Image image = imageRepository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
 
-            if (!image.getUser().equals(user)) {
+            if (!image.getTooluser().equals(user)) {
                 throw new RuntimeException("You are not authorized to delete this image");
             }
 
