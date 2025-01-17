@@ -6,6 +6,7 @@ import com.sfs.image.mgmt.entity.ProducerMessage;
 import com.sfs.image.mgmt.kakfa.KafkaProducer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -43,28 +44,25 @@ public class KafkaImageUploadService {
      * @return a status message indicating the result of the Kafka message send operation
      * @throws IOException if an I/O error occurs while reading the image bytes
      */
-    @Async("taskExecutor")
-    public CompletableFuture<String> uploadImage(String username, String imageName, MultipartFile file) throws IOException {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        ProducerMessage producerMessage = new ProducerMessage();
-        producerMessage.setUsername(username);
-        producerMessage.setImageName(imageName);
-        producerMessage.setImageBytes(file.getBytes());
-
-        try {
-            String jsonMessage = objectMapper.writeValueAsString(producerMessage);
-            String kafkaStatus = kafkaProducer.sendMessage(jsonMessage);
-            return CompletableFuture.completedFuture(kafkaStatus);
-        } catch (JsonProcessingException e) {
-            log.error("Error in Kafka message processing: " + e.getMessage(), e);
-            return CompletableFuture.completedFuture( "Error in Kafka message processing");
-        } finally {
-            stopWatch.stop();
-            log.info("Time taken to upload image and send message to Kafka: " + stopWatch.getTotalTimeMillis() + " ms");
-        }
-    }
+	/*
+	 * @Async("taskExecutor") public CompletableFuture<String> uploadImage(String
+	 * username, String imageName, MultipartFile file) throws IOException {
+	 * StopWatch stopWatch = new StopWatch(); stopWatch.start();
+	 * 
+	 * ProducerMessage producerMessage = new ProducerMessage();
+	 * producerMessage.setUsername(username);
+	 * producerMessage.setImageName(imageName);
+	 * producerMessage.setImageBytes(file.getBytes());
+	 * 
+	 * try { String jsonMessage = objectMapper.writeValueAsString(producerMessage);
+	 * String kafkaStatus = kafkaProducer.sendMessage(jsonMessage); return
+	 * CompletableFuture.completedFuture(kafkaStatus); } catch
+	 * (JsonProcessingException e) { log.error("Error in Kafka message processing: "
+	 * + e.getMessage(), e); return CompletableFuture.completedFuture(
+	 * "Error in Kafka message processing"); } finally { stopWatch.stop();
+	 * log.info("Time taken to upload image and send message to Kafka: " +
+	 * stopWatch.getTotalTimeMillis() + " ms"); } }
+	 */
     
     @Async("taskExecutor")
     public CompletableFuture<String> sendFileToKafka(String username, String imageName,MultipartFile file) throws IOException {
@@ -77,11 +75,13 @@ public class KafkaImageUploadService {
         message.setImageName(file.getOriginalFilename());
         message.setImageBytes(fileBytes);
         message.setImageBytesString(base64EncodedFile); // Base64-encoded bytes
-
+        
         ObjectMapper mapper = new ObjectMapper();
         String jsonMessage = mapper.writeValueAsString(message);
 
         kafkaProducer.sendMessage(jsonMessage);
+        
+       
         return CompletableFuture.completedFuture("File sent to Kafka!");
     }
 

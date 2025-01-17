@@ -33,6 +33,8 @@ public class Image {
      * The URL link to access the image on Imgur.
      */
     private String link;
+    
+    private String deleteHash;
 
     /**
      * The user who uploaded the image.

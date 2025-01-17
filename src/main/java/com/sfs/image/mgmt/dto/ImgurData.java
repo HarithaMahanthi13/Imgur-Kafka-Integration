@@ -16,4 +16,9 @@ public class ImgurData {
      * The URL link to access the uploaded image on Imgur.
      */
     private String link;
+    
+    private String deletehash;
+    
+    private String imgurId;
+    
 }

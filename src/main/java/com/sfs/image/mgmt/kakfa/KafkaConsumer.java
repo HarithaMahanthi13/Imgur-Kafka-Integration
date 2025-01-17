@@ -1,86 +1,86 @@
 package com.sfs.image.mgmt.kakfa;
 
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Base64;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sfs.image.mgmt.entity.ProducerMessage;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sfs.image.mgmt.entity.ProducerMessage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 public class KafkaConsumer {
 
-    @Value("${kafka.topic.user-image}")
-    private String topic;
+    private final ObjectMapper objectMapper;
+
+    @Value("${image.save.path:C:/temp/uploads}")
+    private String savePath;
+
+    public KafkaConsumer(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     /**
-     * Consumes messages from the Kafka topic.
-     * This method listens for messages on the specified Kafka topic and processes them.
-     * 
-     * @param record the ConsumerRecord containing the message and metadata.
-     * @param acknowledgment the Acknowledgment object for manual offset management.
+     * Listens to the Kafka topic for incoming messages and processes them.
+     *
+     * @param record the Kafka record containing the image data as JSON
      */
-	/*
-	 * @KafkaListener(topics = "${kafka.topic.user-image}", groupId =
-	 * "${kafka.consumer.group-id}") public void
-	 * consumeMessage(ConsumerRecord<String, String> record, Acknowledgment
-	 * acknowledgment) { StopWatch stopWatch = new StopWatch(); stopWatch.start();
-	 * 
-	 * try { log.info("record message: {}", record); String message =
-	 * record.value(); log.info("Consumed message: {}", message);
-	 * acknowledgment.acknowledge();
-	 * 
-	 * stopWatch.stop(); log.info("Time taken to process message: {} ms",
-	 * stopWatch.getTotalTimeMillis()); } catch (Exception ex) { stopWatch.stop();
-	 * log.error("Error processing message from topic {}: {} in {} ms", topic,
-	 * record.value(), stopWatch.getTotalTimeMillis(), ex);
-	 * 
-	 * } }
-	 */
     @KafkaListener(topics = "${kafka.topic.user-image}", groupId = "${kafka.consumer.group-id}")
-    public void consumeMessage(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
+    public void consumeImage(ConsumerRecord<String, String> record) {
+        log.info("Received message from Kafka: {}", record.value());
+
         try {
-            String message = record.value();
-            log.info("Raw Kafka message: {}", message);
-           // Deserialize the JSON message
-            ObjectMapper mapper = new ObjectMapper();
-            ProducerMessage producerMessage = mapper.readValue(message, ProducerMessage.class);
+        	
+        	
+            // Deserialize the message to a ProducerMessage object
+            ProducerMessage message = objectMapper.readValue(record.value(), ProducerMessage.class);
 
-            // Decode the Base64-encoded image bytes
-           // byte[] imageBytes = Base64.getDecoder().decode(producerMessage.getImageBytes());
-            
-         // Decode Base64-encoded image data
-            byte[] imageBytes = Base64.getDecoder().decode(producerMessage.getImageBytesString());
-            
-            // Save or process the image bytes
-            String filePath = "C:/temp/uploads/" + producerMessage.getImageName();
-            Files.write(Paths.get(filePath), imageBytes);
+            // Save the image locally
+            saveImageLocally(message);
 
-            log.info("Image saved successfully to {}", filePath);
-            acknowledgment.acknowledge();
-        } catch (JsonMappingException ex) {
-        	log.info("Consumed message: {}");
-       	    acknowledgment.acknowledge();
-        }catch(JsonParseException ex) {
-        	log.info("Consumed message: {}");
-       	    acknowledgment.acknowledge();
-        }
-        catch (Exception ex) {
-            log.error("Error processing Kafka message", ex);
+        } 
+        catch(JsonProcessingException e) {
+        	log.info("received text");
+        	
+        }catch (IOException e) {
+            log.error("Error processing message: {}", record.value(), e);
         }
     }
 
+    /**
+     * Saves the image locally on the filesystem.
+     *
+     * @param message the ProducerMessage containing the image data
+     */
+    private void saveImageLocally(ProducerMessage message) {
+        try {
+            // Ensure the directory exists
+            File directory = new File(savePath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Decode Base64 image bytes
+            byte[] imageBytes = Base64.getDecoder().decode(message.getImageBytesString());
+
+            // Create the file and write the image bytes
+            File file = new File(directory, message.getImageName());
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(imageBytes);
+            }
+
+            log.info("Image saved successfully: {}", file.getAbsolutePath());
+        } catch (IOException e) {
+            log.error("Error saving image locally", e);
+        }
+    }
 }

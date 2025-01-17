@@ -38,5 +38,5 @@ public interface IImgurService {
      * @param username the username of the user requesting the deletion
      * @param password the password of the user requesting the deletion
      */
-    void deleteImage(Long id, String username, String password);
+    void deleteImage(Long id, String username, String password,String delethash);
 }

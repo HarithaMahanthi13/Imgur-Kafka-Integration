@@ -68,10 +68,14 @@ public class ImgurServiceImpl implements IImgurService {
         stopWatch.start();
 
         User user = authenticateUser(username, password);
-
+        final StringBuilder accessToken = new StringBuilder();
+        String accessToken1 = authService.refreshAccessToken();
+      //  accessToken.append("Bearer").append(accessToken1);
+        log.info("accessToken1 is: {}",accessToken1);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.set("Authorization", "Client-ID " + clientId);
+       // headers.set("Authorization", accessToken1);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", new ByteArrayResource(file.getBytes()));
@@ -79,12 +83,19 @@ public class ImgurServiceImpl implements IImgurService {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         Image image = new Image();
         try {
+        	log.info("requestentity: {}",requestEntity);
+        	String curlCommand = generateCurlCommand(imgurUploadURL, headers, body);
+        	log.info("requestentity: {}",curlCommand);
+        	ResponseEntity<String> response1 = restTemplate.postForEntity(imgurUploadURL, requestEntity, String.class);
+            log.info("imgurresposne is1: {}",response1);
             ResponseEntity<ImgurResponse> response = restTemplate.postForEntity(imgurUploadURL, requestEntity, ImgurResponse.class);
-
+           log.info("imgurresposne is: {}",response);
             if (response.getStatusCode() == HttpStatus.OK) {
                 ImgurResponse responseBody = response.getBody();
+                
                 image.setImgurId(responseBody.getData().getId());
                 image.setLink(responseBody.getData().getLink());
+                image.setDeleteHash(responseBody.getData().getDeletehash());
                 image.setTooluser(user);
                 imageRepository.save(image);
             } else {
@@ -103,6 +114,31 @@ public class ImgurServiceImpl implements IImgurService {
             log.info("Time taken to upload image to api: " + stopWatch.getTotalTimeMillis() + " ms");
         }
         return image;
+    }
+    private String generateCurlCommand(String url, HttpHeaders headers, MultiValueMap<String, Object> body) {
+        StringBuilder curlCommand = new StringBuilder("curl -X POST ");
+        curlCommand.append("\"").append(url).append("\"");
+
+        // Add headers
+        headers.forEach((key, values) -> {
+            for (String value : values) {
+                curlCommand.append(" -H \"").append(key).append(": ").append(value).append("\"");
+            }
+        });
+
+        // Add body data (assuming it's for multipart form data)
+        body.forEach((key, values) -> {
+            for (Object value : values) {
+                if (value instanceof ByteArrayResource) {
+                    // Assuming a ByteArrayResource as the image
+                    curlCommand.append(" -F \"").append(key).append("=@<file-path>\""); // Replace <file-path> with your file path
+                } else {
+                    curlCommand.append(" -F \"").append(key).append("=").append(value.toString()).append("\"");
+                }
+            }
+        });
+
+        return curlCommand.toString();
     }
 
     /**
@@ -142,30 +178,38 @@ public class ImgurServiceImpl implements IImgurService {
      * @param username the username of the user requesting the deletion
      * @param password the password of the user requesting the deletion
      */
-    public void deleteImage(Long id, String username, String password) {
+    public void deleteImage(Long id, String username, String password,String delethash) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         try {
             User user = authenticateUser(username, password);
             Image image = imageRepository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
-
+         
             if (!image.getTooluser().equals(user)) {
                 throw new RuntimeException("You are not authorized to delete this image");
             }
 
             final StringBuilder accessToken = new StringBuilder();
             String accessToken1 = authService.refreshAccessToken();
-            accessToken.append("Bearer ").append(accessToken1);
-
+            log.info("accessToken1 delet: {}",accessToken1);
+            accessToken.append("Client-ID ").append(clientId);
+            log.info("authenticateUser delet: {}",accessToken.toString() );
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", accessToken.toString());
-            headers.set(username, password);
-
-            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
+          //  headers.set(username, password);
+            
+           // headers.set("Authorization", "Bearer "+accessToken1);
+            
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            StringBuilder imageurl = new StringBuilder();
+            imageurl.append(imgurDeleteURL);
+            imageurl.append("/");
+            imageurl.append(delethash);
+            log.info("deleteURL: {}", imageurl.toString());
             try {
-                restTemplate.exchange(imgurDeleteURL + image.getImgurId(), HttpMethod.DELETE, requestEntity, Void.class);
+            	log.info("authenticateUser delet");
+                restTemplate.exchange(imageurl.toString(), HttpMethod.DELETE, entity, String.class);
                 imageRepository.delete(image);
                 log.info("Image deleted successfully.");
             } catch (HttpClientErrorException e) {
@@ -201,6 +245,7 @@ public class ImgurServiceImpl implements IImgurService {
      * @throws RuntimeException if authentication fails
      */
     private User authenticateUser(String username, String password) {
+    	log.info("authenticateUser");
         Optional<User> optionalUser = userRepository.findBySfsUser(username);
         User user = optionalUser.orElseThrow(() -> new RuntimeException("Invalid username or password"));
         if (user != null && user.getSfsUserpassword().equals(password)) {
