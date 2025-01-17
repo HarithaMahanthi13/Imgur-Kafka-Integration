@@ -108,6 +108,14 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+ <dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.33</version>
+    <scope>runtime</scope>
+</dependency>
+
+
         <!-- SpringDoc OpenAPI for generating Swagger documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -124,6 +132,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+        
     </dependencies>
     <build>
         <plugins>
