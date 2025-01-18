@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-2:054037128651:task-definition/image_management_task_def:1",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:054037128651:task-definition/image_management_task_def:2",
     "containerDefinitions": [
         {
             "name": "image-container",
