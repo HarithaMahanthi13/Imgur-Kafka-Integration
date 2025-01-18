@@ -72,7 +72,7 @@ public class ImgurAuthService {
             if (responseBody != null) {
                 accessToken = (String) responseBody.get("access_token");
             }
-            log.info("Response from Imgur API: " + responseBody);
+            log.info("Response from Imgur API:: " + responseBody);
         } catch (HttpClientErrorException e) {
             log.error("Client error while refreshing access token: " + e.getStatusCode());
             log.error("Error body: " + e.getResponseBodyAsString());

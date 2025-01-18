@@ -132,6 +132,12 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+        <dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>32.1.2-jre</version> <!-- Replace with a version compatible with your project -->
+</dependency>
+
         
     </dependencies>
     <build>

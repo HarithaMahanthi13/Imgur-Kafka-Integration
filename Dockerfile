@@ -5,7 +5,7 @@ FROM amazoncorretto:17
 WORKDIR /app
 
 # Copy the Spring Boot JAR file into the container
-COPY target/sfs-0.0.1-SNAPSHOT.jar app.jar
+COPY target/sfs.image.mgmt-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose the default port your application runs on
 EXPOSE 8080
