@@ -99,7 +99,7 @@ public class ImgurServiceImpl implements IImgurService {
                 image.setTooluser(user);
                 imageRepository.save(image);
             } else {
-                log.error("Failed to upload image. Status code: " + response.getStatusCode());
+                log.error("Failed to upload image. Status code:: " + response.getStatusCode());
             }
         } catch (HttpClientErrorException e) {
             log.error("Client error: " + e.getStatusCode());
