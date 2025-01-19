@@ -57,7 +57,6 @@ public class ImageController {
             @RequestParam("password") String password
             ) {
         List<Image> images = imgurService.getUserImages(username, password);
-        System.out.println("count of images: " + images.size());
         return ResponseEntity.ok(images);
     }
 
@@ -70,12 +69,12 @@ public class ImageController {
      * @return a ResponseEntity indicating the result of the delete operation
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteImage(
+    public ResponseEntity<String> deleteImage(
             @PathVariable Long id,
             @RequestParam("username") String username,
             @RequestParam("password") String password,
             @RequestParam("delethash") String delethash) {
-        imgurService.deleteImage(id, username, password,delethash);
-        return ResponseEntity.noContent().build();
+        String status=imgurService.deleteImage(id, username, password,delethash);
+        return ResponseEntity.ok(status);
     }
 }

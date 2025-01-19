@@ -178,7 +178,7 @@ public class ImgurServiceImpl implements IImgurService {
      * @param username the username of the user requesting the deletion
      * @param password the password of the user requesting the deletion
      */
-    public void deleteImage(Long id, String username, String password,String delethash) {
+    public String deleteImage(Long id, String username, String password,String delethash) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -197,9 +197,6 @@ public class ImgurServiceImpl implements IImgurService {
             log.info("authenticateUser delet: {}",accessToken.toString() );
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", accessToken.toString());
-          //  headers.set(username, password);
-            
-           // headers.set("Authorization", "Bearer "+accessToken1);
             
             HttpEntity<String> entity = new HttpEntity<>(headers);
             StringBuilder imageurl = new StringBuilder();
@@ -208,8 +205,7 @@ public class ImgurServiceImpl implements IImgurService {
             imageurl.append(delethash);
             log.info("deleteURL: {}", imageurl.toString());
             try {
-            	log.info("authenticateUser delet");
-                restTemplate.exchange(imageurl.toString(), HttpMethod.DELETE, entity, String.class);
+            	restTemplate.exchange(imageurl.toString(), HttpMethod.DELETE, entity, String.class);
                 imageRepository.delete(image);
                 log.info("Image deleted successfully.");
             } catch (HttpClientErrorException e) {
@@ -232,6 +228,7 @@ public class ImgurServiceImpl implements IImgurService {
             stopWatch.stop();
             log.info("Time taken to delete image: " + stopWatch.getTotalTimeMillis() + " ms");
         }
+        return "image deleted successfully";
     }
 
     /**

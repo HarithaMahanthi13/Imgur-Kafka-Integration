@@ -73,7 +73,6 @@ public class UserController {
             userProfileDto.setImages(user.getImage());
             return ResponseEntity.ok(userProfileDto);
         } catch (UserNotFoundException e) {
-        	System.out.println("incatch block");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
